@@ -295,6 +295,11 @@ def extend_schema(
             return method_scope and version_scope
 
         class ExtendedSchema(BaseSchema):
+            _method__status = {
+                'GET': 200, 'POST': 201, 'PUT': 200, 'PATCH': 200, 'DELETE': 204,
+                'HEAD': 200, 'OPTIONS': 200, 'TRACE': 200
+            }
+            
             def get_operation(self, path, path_regex, path_prefix, method, registry):
                 self.method = method.upper()
 
@@ -331,9 +336,16 @@ def extend_schema(
 
             def get_response_serializers(self):
                 super_responses = super().get_response_serializers()
+                print(f'{responses = }')
+                print(f'{super_responses = }')
                 if responses is not empty and is_in_scope(self):
-                    if isinstance(responses, dict) and isinstance(super_responses, dict):
-                        return super_responses | responses
+                    if isinstance(responses, dict):
+                        if isinstance(super_responses, dict):
+                            return super_responses | responses
+                        elif isinstance(super_responses, Serializer):
+                            status = self._method__status[self.method]
+                            return {status: super_responses} | responses
+                    return responses
                 return super_responses
 
             def get_description(self):
