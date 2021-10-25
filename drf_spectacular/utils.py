@@ -330,9 +330,11 @@ def extend_schema(
                 return super().get_request_serializer()
 
             def get_response_serializers(self):
+                super_responses = super().get_response_serializers()
                 if responses is not empty and is_in_scope(self):
-                    return responses
-                return super().get_response_serializers()
+                    if isinstance(responses, dict) and isinstance(super_responses, dict):
+                        return super_responses | responses
+                return super_responses
 
             def get_description(self):
                 if description and is_in_scope(self):
