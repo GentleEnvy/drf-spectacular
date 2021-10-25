@@ -336,8 +336,6 @@ def extend_schema(
 
             def get_response_serializers(self):
                 super_responses = super().get_response_serializers()
-                print(f'{responses = }')
-                print(f'{super_responses = }')
                 if responses is not empty and is_in_scope(self):
                     if isinstance(responses, dict):
                         if isinstance(super_responses, dict):
