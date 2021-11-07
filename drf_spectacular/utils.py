@@ -201,6 +201,15 @@ class OpenApiResponse(OpenApiSchemaBase):
 F = TypeVar('F', bound=Callable[..., Any])
 
 
+def delete_none(f):
+    def _decorator(*args, **kwargs):
+        res = f(*args, **kwargs)
+        if isinstance(res, dict):
+            res = {k: v for k, v in res.items() if v is not None}
+        return res
+    return _decorator
+
+
 def extend_schema(
         operation_id: Optional[str] = None,
         parameters: Optional[List[Union[OpenApiParameter, _SerializerType]]] = None,
@@ -334,6 +343,7 @@ def extend_schema(
                     return request
                 return super().get_request_serializer()
 
+            @delete_none
             def get_response_serializers(self):
                 super_responses = super().get_response_serializers()
                 if responses is not empty and is_in_scope(self):
